@@ -154,8 +154,8 @@ pipeline {
         }
         stage ("Deploy to Container") {
     steps {
-        sh 'docker rm -f amazon-prime || true'
-        sh 'docker run -d --name amazon-prime -p 3000:3000 amonkincloud/amazon-prime:latest'
+        sh 'sudo docker rm -f amazon-prime || true'
+        sh 'sudo docker run -d --name amazon-prime -p 3000:3000 amonkincloud/amazon-prime:latest'
     }
 }
         }
