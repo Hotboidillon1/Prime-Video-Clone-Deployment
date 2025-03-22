@@ -126,10 +126,10 @@ pipeline {
                 sh "trivy fs . > trivy.txt"
             }
         }
-        stage ("Build Docker Image") {
+stage ("Build Docker Image") {
     steps {
         script {
-            dockerImage = docker.build("amazon-prime")
+            dockerImage = docker.build("dillon82/amazon-prime")
         }
     }
 }
@@ -137,7 +137,7 @@ pipeline {
 stage ("Tag & Push to DockerHub") {
     steps {
         script {
-            docker.withRegistry('https://registry.hub.docker.com', 'docker') {
+            docker.withRegistry('https://registry.hub.docker.com', 'docker-cred') {
                 dockerImage.push("latest")
                 dockerImage.push("${env.BUILD_NUMBER}")
             }
@@ -149,7 +149,7 @@ stage ("Deploy to Container") {
     steps {
         script {
             sh 'docker rm -f amazon-prime || true'
-            docker.image("amonkincloud/amazon-prime:latest").run("--name amazon-prime -p 3000:3000")
+            docker.image("dillon82/amazon-prime:latest").run("--name amazon-prime -p 3000:3000")
         }
     }
 }
@@ -179,7 +179,6 @@ stage ("Deploy to Container") {
         }
     }
 }
-
    
 
 ```
