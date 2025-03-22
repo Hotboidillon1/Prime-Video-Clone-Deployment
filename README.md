@@ -129,7 +129,7 @@ pipeline {
 stage ("Build Docker Image") {
     steps {
         script {
-            dockerImage = docker.build("dillon82/amazon-prime")
+            env.DOCKER_IMAGE = docker.build("dillon82/amazon-prime").id
         }
     }
 }
@@ -137,6 +137,7 @@ stage ("Build Docker Image") {
 stage ("Tag & Push to DockerHub") {
     steps {
         script {
+            def dockerImage = docker.image(env.DOCKER_IMAGE)
             docker.withRegistry('https://registry.hub.docker.com', 'docker-cred') {
                 dockerImage.push("latest")
                 dockerImage.push("${env.BUILD_NUMBER}")
@@ -179,6 +180,7 @@ stage ("Deploy to Container") {
         }
     }
 }
+
    
 
 ```
