@@ -127,38 +127,32 @@ pipeline {
             }
         }
         stage ("Build Docker Image") {
-            steps {
-                sh "docker build -t amazon-prime ."
-            }
-        }
-        stage ("Tag & Push to DockerHub") {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker') {
-                        sh "sudo docker tag amazon-prime amonkincloud/amazon-prime:latest "
-                        sh "sudo docker push amonkincloud/amazon-prime:latest "
-                    }
-                }
-            }
-        }
-        stage('Docker Scout Image') {
-            steps {
-                script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
-                       sh 'sudo docker-scout quickview amonkincloud/amazon-prime:latest'
-                       sh 'sudo docker-scout cves amonkincloud/amazon-prime:latest'
-                       sh 'sudo docker-scout recommendations amonkincloud/amazon-prime:latest'
-                   }
-                }
-            }
-        }
-        stage ("Deploy to Container") {
     steps {
-        sh 'sudo docker rm -f amazon-prime || true'
-        sh 'sudo docker run -d --name amazon-prime -p 3000:3000 amonkincloud/amazon-prime:latest'
+        script {
+            dockerImage = docker.build("amazon-prime")
+        }
     }
 }
+
+stage ("Tag & Push to DockerHub") {
+    steps {
+        script {
+            docker.withRegistry('https://registry.hub.docker.com', 'docker') {
+                dockerImage.push("latest")
+                dockerImage.push("${env.BUILD_NUMBER}")
+            }
         }
+    }
+}
+
+stage ("Deploy to Container") {
+    steps {
+        script {
+            sh 'docker rm -f amazon-prime || true'
+            docker.image("amonkincloud/amazon-prime:latest").run("--name amazon-prime -p 3000:3000")
+        }
+    }
+}
     }
     post {
     always {
@@ -179,12 +173,14 @@ pipeline {
                 </body>
                 </html>
             """,
-            to: 'provide_your_Email_id_here',
+            to: 'hotboidillon1982@gmail.com',
             mimeType: 'text/html',
             attachmentsPattern: 'trivy.txt'
         }
     }
 }
+
+   
 
 ```
 **Phase 4: Monitoring**
