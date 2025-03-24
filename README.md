@@ -129,7 +129,7 @@ pipeline {
 stage ("Build Docker Image") {
     steps {
         script {
-            env.DOCKER_IMAGE = docker.build("dillon82/amazon-prime").id
+            dockerImage = docker.build("dillon82/amazon-prime")
         }
     }
 }
@@ -137,7 +137,6 @@ stage ("Build Docker Image") {
 stage ("Tag & Push to DockerHub") {
     steps {
         script {
-            def dockerImage = docker.image(env.DOCKER_IMAGE)
             docker.withRegistry('https://registry.hub.docker.com', 'docker-cred') {
                 dockerImage.push("latest")
                 dockerImage.push("${env.BUILD_NUMBER}")
@@ -180,6 +179,7 @@ stage ("Deploy to Container") {
         }
     }
 }
+
 
    
 
@@ -517,3 +517,39 @@ To deploy an application with ArgoCD, you can follow these steps, which I'll out
 
 1. **Cleanup AWS EC2 Instances:**
     - Terminate AWS EC2 instances that are no longer needed.
+  
+   2 - Troubleshooting file
+       /home/ubuntu/prometheus-2.47.1.linux-amd64/prometheus.yml
+      sudo nano /home/ubuntu/prometheus-2.47.1.linux-amd64/prometheus.yml
+      cat /home/ubuntu/prometheus-2.47.1.linux-amd64/prometheus.yml
+       - job_name: 'jenkins'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['18.215.147.215:8080']
+      
+  - job_name: 'k8s'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['54.173.155.176:9100']
+   
+      - global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+3. sudo vi was used
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+
+  - job_name: 'jenkins'
+    metrics_path: '/prometheus'
+    static_configs:
+      - targets: ['<your-jenkins-ip>:<your-jenkins-port>']
+   
+   
