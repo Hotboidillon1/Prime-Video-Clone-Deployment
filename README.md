@@ -536,8 +536,11 @@ To deploy an application with ArgoCD, you can follow these steps, which I'll out
   scrape_interval: 15s
   evaluation_interval: 15s
 
-3. sudo vi was used
 
+3.- sudo vi /etc/prometheus/prometheus.yml
+   - sudo nano /home/ubuntu/prometheus-2.47.1.linux-amd64/prometheus.yml
+  - promtool check config /etc/prometheus/prometheus.yml
+  
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
